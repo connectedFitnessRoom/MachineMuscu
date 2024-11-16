@@ -2,11 +2,10 @@ import com.phidget22.{PhidgetException, RFID, RFIDTagEvent, RFIDTagLostEvent}
 
 object RFIDReaderExample {
   def main(args: Array[String]): Unit = {
-    // Créer une instance du lecteur RFID
     val rfid = new RFID()
 
     try {
-      // Définir un écouteur pour l'événement de détection d'étiquette
+      
       rfid.addTagListener((event: RFIDTagEvent) => {
         println(s"Étiquette détectée : ${event.getTag}")
         println(s"Protocole de la carte : ${event.getProtocol}")
@@ -23,9 +22,8 @@ object RFIDReaderExample {
       println("Placez une étiquette RFID près du lecteur pour lire ses informations.")
       println("Appuyez sur Ctrl+C pour quitter.")
 
-      // Boucle pour garder le programme en cours d'exécution
       while (true) {
-        Thread.sleep(100)  // Petite pause pour éviter d'utiliser trop de CPU
+        Thread.sleep(100)  
       }
     } catch {
       case e: PhidgetException =>
