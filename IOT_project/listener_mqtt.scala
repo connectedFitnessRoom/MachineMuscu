@@ -32,7 +32,7 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
     }
   })
 
-  // Gestion des messages Akka reçus par l'acteur
+  // Gestion des messages Akka reçus et envoyé par l'acteur
   override def receive: Receive = {
     case Connect =>
       mqttClient.connect()
@@ -59,11 +59,11 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
   }
 }
 
-object MqttAkkaListenerApp extends App {
-  val brokerUrl = "tcp://192.168.1.18:1883" // Remplacez par l'URL de votre broker
-  val clientId = "AkkaMqttClient"                // Identifiant unique du client
-  val topic = "test/topic"                       // Topic d'abonnement
-
+object MqttAkkaListenerApp(topic:String) extends App {
+  val appEnv = System.getenv("IP_MQTT")
+  val brokerUrl = "tcp://$appEnv:1883" 
+  val clientId = "AkkaMqttClient"              
+                         
   // Création du système d'acteurs et de l'acteur MQTT
   val system = ActorSystem("MqttSystem")
   val mqttActor = system.actorOf(Props(new MqttActor(brokerUrl, clientId)), "mqttActor")
