@@ -58,7 +58,7 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
   }
 }
 
-object MqttAkkaListenerApp extends App {
+object MqttAkkaListenerSenderApp extends App {
   val appEnv = Option(System.getenv("IP_MQTT")).getOrElse("localhost")
   val brokerUrl = s"tcp://$appEnv:1883"
   val clientId = "AkkaMqttClient"
