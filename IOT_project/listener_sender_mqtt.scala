@@ -1,6 +1,7 @@
 import akka.actor.{Actor, ActorSystem, Props}
 import org.eclipse.paho.client.mqttv3._
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import rx.lang.scala.{Observable, Subject}
 
 // Messages Akka pour la gestion des événements MQTT
 case object Connect
@@ -11,10 +12,12 @@ case class MessageArrived(topic: String, message: String)
 
 // Acteur MQTT pour gérer la connexion, les abonnements et les messages
 class MqttActor(brokerUrl: String, clientId: String) extends Actor {
-  // Configuration du client MQTT
+
   val mqttClient = new MqttClient(brokerUrl, clientId, new MemoryPersistence)
 
-  // Définition du callback pour gérer les événements MQTT
+
+  val mqttSubject: Subject[MessageArrived] = Subject()
+
   mqttClient.setCallback(new MqttCallback {
     override def connectionLost(cause: Throwable): Unit = {
       println(s"Connexion perdue : ${cause.getMessage}")
@@ -23,8 +26,8 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
     override def messageArrived(topic: String, mqttMessage: MqttMessage): Unit = {
       val message = new String(mqttMessage.getPayload)
       println(s"Message reçu sur le topic '$topic' : $message")
-      // Envoi du message à l'acteur pour un traitement supplémentaire
-      self ! MessageArrived(topic, message)
+      // Émet le message via le sujet Rx
+      mqttSubject.onNext(MessageArrived(topic, message))
     }
 
     override def deliveryComplete(token: IMqttDeliveryToken): Unit = {
@@ -32,7 +35,7 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
     }
   })
 
-  // Gestion des messages Akka reçus et envoyé par l'acteur
+  // Gestion des messages Akka reçus
   override def receive: Receive = {
     case Connect =>
       mqttClient.connect()
@@ -52,21 +55,30 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
       val mqttMessage = new MqttMessage(message.getBytes)
       mqttClient.publish(topic, mqttMessage)
       println(s"Message publié sur le topic $topic : $message")
-
-    case MessageArrived(topic, message) =>
-      // Traitement du message reçu (peut être enrichi selon les besoins)
-      println(s"Traitement du message reçu sur '$topic' : $message")
   }
 }
 
-object MqttAkkaListenerApp(topic:String) extends App {
-  val appEnv = System.getenv("IP_MQTT")
-  val brokerUrl = "tcp://$appEnv:1883" 
-  val clientId = "AkkaMqttClient"              
-                         
+object MqttAkkaListenerApp extends App {
+  val appEnv = Option(System.getenv("IP_MQTT")).getOrElse("localhost")
+  val brokerUrl = s"tcp://$appEnv:1883"
+  val clientId = "AkkaMqttClient"
+  val topic = "test/topic"
+
   // Création du système d'acteurs et de l'acteur MQTT
   val system = ActorSystem("MqttSystem")
   val mqttActor = system.actorOf(Props(new MqttActor(brokerUrl, clientId)), "mqttActor")
+
+  // Cast de l'acteur pour accéder au sujet Rx
+  val mqttActorRef = mqttActor.asInstanceOf[MqttActor]
+
+  // Observable pour les messages MQTT
+  val observable: Observable[MessageArrived] = mqttActorRef.mqttSubject
+
+  // Exemple d'abonnement à l'observable pour traiter les messages
+  observable
+    .filter(_.topic == topic) // Filtrer les messages par topic
+    .map(msg => s"Message transformé : ${msg.message.toUpperCase}") // Transformation
+    .subscribe(msg => println(s"Traitement : $msg"))
 
   // Connexion, abonnement et attente des messages
   mqttActor ! Connect
