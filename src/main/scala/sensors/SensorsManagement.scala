@@ -1,3 +1,4 @@
+package sensors
 
 import com.phidget22._
 import scala.concurrent._
