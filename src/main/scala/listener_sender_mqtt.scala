@@ -58,6 +58,10 @@ class MqttActor(brokerUrl: String, clientId: String) extends Actor {
   }
 }
 
+
+/**
+EXEMPLE d'utilisation de la class mqtt actor
+
 object MqttAkkaListenerSenderApp extends App {
   val appEnv = Option(System.getenv("IP_MQTT")).getOrElse("localhost")
   val brokerUrl = s"tcp://$appEnv:1883"
@@ -90,3 +94,5 @@ object MqttAkkaListenerSenderApp extends App {
     system.terminate()
   }
 }
+
+*/
