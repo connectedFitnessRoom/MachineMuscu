@@ -11,6 +11,8 @@ lazy val root = (project in file("."))
     libraryDependencies += "org.eclipse.paho" % "org.eclipse.paho.client.mqttv3" % "1.2.5",
 
     libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.8.8",
+    unmanagedJars in Compile += baseDirectory.value / "src" / "main" / "scala" / "phidget22.jar"
+
   )
 
 Global / concurrentRestrictions := Seq(Tags.limitAll(1))
