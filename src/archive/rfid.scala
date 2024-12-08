@@ -1,4 +1,4 @@
-import com.phidget22.{PhidgetException, RFID, RFIDTagEvent, RFIDTagLostEvent}
+import com.phidget22.{PhidgetException, RFID, RFIDTagEvent, RFIDTagLostEvent,RFIDProtocol}
 
 object RFIDReaderExample {
   def main(args: Array[String]): Unit = {

@@ -8,9 +8,11 @@ lazy val root = (project in file("."))
     
     libraryDependencies += "io.reactivex" %% "rxscala" % "0.27.0",
 
-    libraryDependencies += "org.eclipse.paho" % "org.eclipse.paho.client.mqttv3" % "2.1.0", 
+    libraryDependencies += "org.eclipse.paho" % "org.eclipse.paho.client.mqttv3" % "1.2.5", 
 
     libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.8.8",
+
+    libraryDependencies += "org.json" % "json" % "20240303",
   )
 
 Global / concurrentRestrictions := Seq(Tags.limitAll(1))

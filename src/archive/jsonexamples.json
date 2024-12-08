@@ -1,0 +1,20 @@
+{
+    "payload_start": {
+        "type": "START",
+        "user": 1,
+        "time": "2024-11-25T16:24:01.196095",
+        "weight":50
+    },
+    "payload_datastream":{
+        "type": "DATA",
+        "user": 1,
+        "distance": 256,
+        "timer": 12.56
+    },
+    "payload_end": {
+        "type": "END",
+        "user": 1,
+        "reps": 12,
+        "time": "2024-11-25T16:25:01.196095"
+    }
+}
