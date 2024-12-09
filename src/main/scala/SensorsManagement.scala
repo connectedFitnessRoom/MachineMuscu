@@ -31,10 +31,11 @@ object SensorsManagement {
 
 
 
-  val weight_step_size: Float = 100f
-  val weight_bottom: Float = 20f
-  var weight_setting = 1
-  val weight_values: Array[Int] = Array(50,40,30,20,10)
+  val weight_step_size: Int = 30
+  val weight_bottom: Int = 15
+  val weight_margin: Int = 15
+  var weight_setting = 0
+  val weight_values: Array[Int] = Array(50,40,30,20,10, 0)
   
 
   
@@ -198,7 +199,7 @@ object SensorsManagement {
 
 
   def updateRepCount(readingHistory: LinkedList[Int]): scala.Unit = {
-	if (getMovementDirection(readingHistory)) {
+	if (!getMovementDirection(readingHistory)) {
 	  print("\rWe are going up!")
 	  repCounted = false
 	} else {
@@ -219,8 +220,22 @@ object SensorsManagement {
 	var old_weight: Int = weight_setting
 	if (!exercising) {
 	  try {
+		var distance = distancesensor1.getDistance
+
 		
-		weight_setting = ((distancesensor1.getDistance.toFloat - weight_bottom) / weight_step_size).toInt
+		var temp = ((distance - weight_bottom) / weight_step_size)
+		println(temp)
+
+		var lower = weight_bottom + weight_step_size * temp - weight_margin
+		var upper = weight_bottom + weight_step_size * temp + weight_margin
+
+		if (distance <= lower) {
+			weight_setting = temp - 1
+		} else if (distance >= upper) {
+			weight_setting = temp + 1
+		} else {
+			weight_setting = temp
+		}
 		
 		if (weight_setting != old_weight) {
 			println("Changed weight setting to " + getWeightValue().toString)

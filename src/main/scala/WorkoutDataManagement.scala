@@ -24,7 +24,7 @@ class WorkoutDataManagement {
     val appEnv = Option(System.getenv("IP_MQTT")).getOrElse("localhost")
     val brokerUrl = s"tcp://$appEnv:1883"
     val clientId = "AkkaMqttClient"
-    val topic = "test"
+    val topic = "basic_frite/machine/0/data"
 
     val system = ActorSystem("MqttSystem")
     val mqttActor = system.actorOf(Props(new MqttActor(brokerUrl, clientId)), "mqttActor")
