@@ -2,7 +2,7 @@ import com.phidget22._
 import org.json._
 import scala.concurrent._
 import scala.util.{Try, Success, Failure}
-import java.time.LocalDateTime
+import java.time.{LocalDateTime. Instant}
 import akka.actor.{Actor, ActorSystem, Props}
 
 import ExecutionContext.Implicits.global
@@ -46,8 +46,8 @@ class WorkoutDataManagement {
             case Success(tag) => {
                 var startJSON = new JSONObject
                 startJSON.put("type", "START")
-                startJSON.put("user", tag.tagString.toInt)
-                startJSON.put("time", LocalDateTime.now.toString)
+                startJSON.put("user", tag.tagString)
+                startJSON.put("time", Instant.now.toString)
                 startJSON.put("weight", weight)
                 Success(startJSON)
             }
@@ -66,7 +66,7 @@ class WorkoutDataManagement {
             case Success(tag) => {
                 var dataJSON = new JSONObject
                 dataJSON.put("type", "DATA")
-                dataJSON.put("user", tag.tagString.toInt)
+                dataJSON.put("user", tag.tagString)
                 dataJSON.put("distance", distance)
                 dataJSON.put("timer", timerValue)
                 Success(dataJSON)
@@ -86,9 +86,9 @@ class WorkoutDataManagement {
             case Success(tag) => {
                 var endJSON = new JSONObject
                 endJSON.put("type", "END")
-                endJSON.put("user", tag.tagString.toInt)
+                endJSON.put("user", tag.tagString)
                 endJSON.put("reps", reps)
-                endJSON.put("time", LocalDateTime.now.toString)
+                endJSON.put("time", Instant.now.toString)
                 Success(endJSON)
             }
             case Failure(e) => {
