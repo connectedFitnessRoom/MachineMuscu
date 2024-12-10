@@ -6,22 +6,27 @@ import rx.lang.scala.Observable
 
 
 object SensorsManagement {
-  // Distance sensor fetch
-  val distancesensor0 = new DistanceSensor()
-  distancesensor0.open(PhidgetBase.DEFAULT_TIMEOUT)
-  distancesensor0.setDeviceSerialNumber(1)
-  distancesensor0.setHubPort(1)
-  distancesensor0.setChannel(0)
-  distancesensor0.setDataRate(5)
-  println("opened sensor 0")
-
+  
   val distancesensor1  = new DistanceSensor()
   distancesensor1.open(PhidgetBase.DEFAULT_TIMEOUT)
-  distancesensor1.setDeviceSerialNumber(0)
+  distancesensor1.setDeviceSerialNumber(1)
   distancesensor1.setHubPort(0)
   distancesensor1.setChannel(0)
   distancesensor1.setDataRate(5)
   println("opened sensor 1")
+  
+  
+  
+  // Distance sensor fetch
+  val distancesensor0 = new DistanceSensor()
+  distancesensor0.open(PhidgetBase.DEFAULT_TIMEOUT)
+  distancesensor0.setDeviceSerialNumber(0)
+  distancesensor0.setHubPort(4)
+  distancesensor0.setChannel(0)
+  distancesensor0.setDataRate(5)
+  println("opened sensor 0")
+
+  
 
 
   
@@ -31,11 +36,11 @@ object SensorsManagement {
 
 
 
-  val weight_step_size: Int = 30
-  val weight_bottom: Int = 15
-  val weight_margin: Int = 15
+  val weight_step_size: Int = 25
+  val weight_bottom: Int = 7
+  val weight_margin: Int = 12
   var weight_setting = 0
-  val weight_values: Array[Int] = Array(50,40,30,20,10, 0)
+  val weight_values: Array[Int] = Array(50,40,30,20,10,0)
   
 
   
@@ -67,7 +72,7 @@ object SensorsManagement {
 
   def getWeightValue(): Int = {
 	if (weight_setting >= weight_values.length) {
-		10
+		0
 	}
 
 	weight_values(weight_setting)
@@ -224,11 +229,30 @@ object SensorsManagement {
 
 		
 		var temp = ((distance - weight_bottom) / weight_step_size)
-		println(temp)
 
-		var lower = weight_bottom + weight_step_size * temp - weight_margin
-		var upper = weight_bottom + weight_step_size * temp + weight_margin
+		//var lower = weight_bottom + weight_step_size * temp - weight_margin
+		//var upper = weight_bottom + weight_step_size * temp + weight_margin
 
+		var n = 0
+		var found = false
+
+		while (!found) {
+			var lower = weight_bottom + weight_step_size * n - weight_margin
+			var upper = weight_bottom + weight_step_size * n + weight_margin
+
+			if (lower <= distance && distance < upper) {
+				weight_setting = n
+				found = true
+
+				if (weight_setting != old_weight) {
+					println("Changed weight setting to " + getWeightValue().toString)
+				}
+				return weight_setting
+			}
+			n = n + 1
+		}
+		
+		/*
 		if (distance <= lower) {
 			weight_setting = temp - 1
 		} else if (distance >= upper) {
@@ -236,10 +260,8 @@ object SensorsManagement {
 		} else {
 			weight_setting = temp
 		}
+		*/
 		
-		if (weight_setting != old_weight) {
-			println("Changed weight setting to " + getWeightValue().toString)
-		}
 	  } catch {
 		case t: Throwable => return weight_setting
 	  }
@@ -269,7 +291,7 @@ object SensorsManagement {
 		return 
 	}
 	catch {
-		case e => {
+		case e: Throwable => {
 			println("interruption")
 			distancesensor0.close
 			distancesensor1.close

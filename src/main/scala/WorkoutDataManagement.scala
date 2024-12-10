@@ -106,7 +106,7 @@ class WorkoutDataManagement {
                 mqttActor ! Publish(topic, json.toString)
             }
             case Failure(e) => {
-                println("no RFID registered")
+                // println("no RFID registered")
                 ()
             }
         }
